@@ -1,0 +1,54 @@
+div.part(id='part-' + id)
+  h2 Part #{id}
+  div
+    div.part_row
+      label(for='part-' + id + '-category') Category
+      br
+      select.category(id='part-' + id + '-category') 
+    div.part_row
+      label(for='part-' + id + '-voice') Voice 
+      br
+      select.voice(id='part-' + id + '-voice')
+    div.part_row
+      button(type='button' id='part-' + id + '-mute') Mute
+      button(type='button' id='part-' + id + '-solo') Solo
+    div.part_row
+      label(for='part-' + id + '-volume') Volume
+      br
+      input(type='range' id='part-' + id + '-volume')
+    div.part_row
+      label(for='part-' + id + '-pan') Pan
+      br
+      input(type='range' id='part-' + id + '-pan')
+    div.part_row
+      label(for='part-' + id + '-attack') Attack
+      br
+      input(type='range' id='part-' + id + '-attack')
+    div.part_row
+      label(for='part-' + id + '-release') Release
+      br
+      input(type='range' id='part-' + id + '-release')
+    div.part_row
+      label(for='part-' + id + '-expression') Expression
+      br
+      input(type='range' id='part-' + id + '-expression')
+    div.part_row
+      label(for='part-' + id + '-harmonics') Harmonic Content
+      br
+      input(type='range' id='part-' + id + '-harmonics')
+    div.part_row
+      label(for='part-' + id + '-brightness') Brightness
+      br
+      input(type='range' id='part-' + id + '-brightness')
+    div.part_row
+      label(for='part-' + id + '-reverb') Reverb Depth
+      br
+      input(type='range' id='part-' + id + '-reverb')
+    div.part_row
+      label(for='part-' + id + '-chorus') Chorus Depth
+      br
+      input(type='range' id='part-' + id + '-reverb')
+    div.part_row
+      label(for='part-' + id + '-dsp') DSP Depth
+      br
+      input(type='range' id='part-' + id + '-reverb')

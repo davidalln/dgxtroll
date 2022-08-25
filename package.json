@@ -1,0 +1,22 @@
+{
+  "name": "dgx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/dgx.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "copyfiles -f ./app/*.js ./app/*.pug ./app/*.sass ./node_modules/jquery/dist/jquery.min.js ./build && pug ./build/dgx.pug && sass ./build/dgx.sass ./build/dgx.css",
+    "start": "npm run build && electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^20.0.3"
+  },
+  "dependencies": {
+    "copyfiles": "^2.4.1",
+    "jquery": "^3.6.0",
+    "pug": "^3.0.2",
+    "sass": "^1.54.5"
+  }
+}
