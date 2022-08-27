@@ -11,7 +11,10 @@ contextBridge.exposeInMainWorld("dgxAPI", {
   setPartVoiceCategory: (id, cat) => ipcRenderer.invoke("api:set-part-voice-category", id, cat),
 
   sendTestNote: () => ipcRenderer.invoke("api:send-test-note"),
+  sendNoteOn: (ch, note) => ipcRenderer.invoke("api:send-note-on", ch, note),
+  sendNoteOff: (ch, note) => ipcRenderer.invoke("api:send-note-off", ch, note),
   sendProgramChange: (id, vox) => ipcRenderer.invoke("api:send-program-change", id, vox),
+  sendControl: (ch, cc, val) => ipcRenderer.invoke("api:send-control", ch, cc ,val),
   sendVolume: (ch, vol) => ipcRenderer.invoke("api:send-volume", ch, vol),
   sendPan: (ch, pan) => ipcRenderer.invoke("api:send-pan", ch, pan),
 })

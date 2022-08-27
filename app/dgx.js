@@ -21,29 +21,59 @@ const cUIPart_VoiceSelector = pug.compile(fUIPart_VoiceSelector)
 
 const state = cConfigDefaultState
 
+const domToMidi = [
+    0,   1,   3,   4,   5,   6,   8,   9,  10,  11,
+   13,  14,  15,  17,  18,  19,  20,  22,  23,  24,
+   25,  27,  28,  29,  30,  32,  33,  34,  36,  37,
+   38,  39,  41,  42,  43,  44,  46,  47,  48,  50,
+   51,  52,  53,  55,  56,  57,  58,  60,  61,  62,
+   64,  65,  66,  67,  69,  70,  71,  72,  74,  75,
+   76,  77,  79,  80,  81,  83,  84,  85,  86,  88,
+   89,  90,  91,  93,  94,  95,  97,  98,  99, 100,
+  102, 103, 104, 105, 107, 108, 109, 110, 112, 113,
+  114, 116, 117, 118, 119, 121, 122, 123, 124, 126,
+  127,
+]
+
+const midiToDom = [
+   0,  1,  2,  2,  3,  4,  5,  6,
+   6,  7,  8,  9,  9, 10, 11, 12,
+  13, 13, 14, 15, 16, 17, 17, 18,
+  19, 20, 21, 21, 22, 23, 24, 24,
+  25, 26, 27, 28, 28, 29, 30, 31,
+  32, 32, 33, 34, 35, 36, 36, 37,
+  38, 39, 39, 40, 41, 42, 43, 43,
+  44, 45, 46, 47, 47, 48, 49, 50,
+  51, 51, 52, 53, 54, 54, 55, 56,
+  57, 58, 58, 59, 60, 61, 62, 62,
+  63, 64, 65, 65, 66, 67, 68, 69,
+  69, 70, 71, 72, 73, 73, 74, 75,
+  76, 77, 77, 78, 79, 80, 80, 81,
+  82, 83, 84, 84, 85, 86, 87, 88,
+  88, 89, 90, 91, 92, 92, 93, 94,
+  95, 95, 96, 97, 98, 99, 99,100,
+]
+
 const midi = {
   ready: false,
   connected: false,
   output: null,
   outputs: [],
 
-  codes: {
-    cc: {
-      msb: 0,
-      lsb: 32,
-      part_volume: 7,
-      pan: 10,
-      expression: 11,
-      sustain: 64,
-      harmonics: 71,
-      release: 72,
-      attack: 73,
-      brightness: 74,
-      portamento: 84,
-      reverb: 91,
-      chorus: 93,
-      dsp: 94
-    }
+  // from DGX300 MIDI Implementation Chart
+  mapControl: {
+    part_msb: 0,
+    part_lsb: 32,
+    part_volume: 7,
+    part_pan: 10,
+    part_attack: 73,
+    part_release: 72,
+    part_expression: 11,
+    part_harmonics: 71,
+    part_brightness: 74,
+    part_reverb: 91,
+    part_chorus: 93,
+    part_dsp: 94
   }
 }
 
@@ -66,7 +96,7 @@ function createWindow () {
 
   // ---- IPC CONFIG ----
   // send configuration data to controller
-  ipcMain.handle("config:get-max-parts", async (_) => { return 4 })
+  ipcMain.handle("config:get-max-parts", async (_) => { return state.parts.length })
 
   // ---- IPC UI ----
   // send rendered pug ui components
@@ -79,8 +109,12 @@ function createWindow () {
     }) 
   })
 
-  ipcMain.handle("ui:get-rendered-part", async (_, id) => {
-    return cUIPart({ id: id })
+  ipcMain.handle("ui:get-rendered-part", async (_, ch) => {
+    return cUIPart({
+      ch: ch,
+      midiToDom: midiToDom,
+      part_values: state.parts[ch]
+    })
   })
 
   ipcMain.handle("ui:get-rendered-part_voice-selector", async (_, id) => {
@@ -109,15 +143,34 @@ function createWindow () {
     }
   })
 
+  ipcMain.handle("api:send-note-on", async(_, ch, note) => {
+    if (midi.connected) {
+      midi.output.ch(ch).noteOn(note)
+    }
+  })
+
+  ipcMain.handle("api:send-note-off", async(_, ch, note) => {
+    if (midi.connected) {
+      midi.output.ch(ch).noteOff(note)
+    }
+  })
+
   ipcMain.handle("api:send-program-change", async(_, id, vox) => {
     state.parts[id].voice_program = vox
     if (midi.connected) {
       const cat = state.parts[id].voice_category
       const voice = cConfigDgxPgmData[cat].voices[vox]
 
-      midi.output.ch(id).control(midi.codes.cc.lsb, voice.lsb)
-      midi.output.ch(id).control(midi.codes.cc.msb, voice.msb)
+      midi.output.ch(id).control(midi.mapControl.part_lsb, voice.lsb)
+      midi.output.ch(id).control(midi.mapControl.part_msb, voice.msb)
       midi.output.ch(id).program(voice.pgm)
+    }
+  })
+
+  ipcMain.handle("api:send-control", async(_, ch, cc, val) => {
+    if (midi.connected) {
+      console.log(`ch ${ch} cc ${cc} ${midi.mapControl[cc]} val ${val}`)
+      midi.output.ch(ch).control(midi.mapControl[cc], domToMidi[val])
     }
   })
 

@@ -1,11 +1,11 @@
-div.part_row
+div
   label(for='part-' + id + '-category') Category
   br
   select.part-category(id='part-' + id + '-category') 
     - var cat = 0
     while cat < pgm_data.length
       option(value=cat selected=(cat == category))= pgm_data[cat++].name
-div.part_row
+div
   label(for='part-' + id + '-voice') Voice 
   br
   select.part-voice(id='part-' + id + '-voice')
