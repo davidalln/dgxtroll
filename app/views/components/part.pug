@@ -1,14 +1,21 @@
 div.part(id='part-' + id)
   h2 Part #{id}
   div
+    div.part_row(id='part-' + id + '-voice-selector')
     div.part_row
       label(for='part-' + id + '-category') Category
       br
       select.category(id='part-' + id + '-category') 
+        - var cat = 0
+        while cat < pgm_data.length
+          option(value=cat selected=(cat == default_category))= pgm_data[cat++].name
     div.part_row
       label(for='part-' + id + '-voice') Voice 
       br
       select.voice(id='part-' + id + '-voice')
+        - var pgm = 0
+        while pgm < pgm_data[default_category].voices.length
+          option(value=pgm selected=(pgm == 0))= pgm_data[default_category].voices[pgm++].name
     div.part_row
       button(type='button' id='part-' + id + '-mute') Mute
       button(type='button' id='part-' + id + '-solo') Solo

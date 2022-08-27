@@ -1,0 +1,16 @@
+[
+	{
+		"name": "Piano",
+		"voices": [
+				{ "name": "Live! Grand", "msb": 0, "lsb": 113, "pgm": 0 }
+		]
+	},
+	{
+		"name": "Synth Pads",
+		"voices": [
+				{ "name": "New Age Pad", "msb": 0, "lsb": 0, "pgm": 88 },
+				{ "name": "Fantasy", "msb": 0, "lsb": 64, "pgm": 88 },
+				{ "name": "Warm Pad", "msb": 0, "lsb": 0, "pgm": 89 }
+		]
+	}
+]

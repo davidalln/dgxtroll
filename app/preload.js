@@ -1,6 +1,12 @@
-const { contextBridge, ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer } = require("electron")
 
-contextBridge.exposeInMainWorld('dgxAPI', {
-  maxVoices: () => ipcRenderer.invoke('get-max-voices'),
-  renderedVoice: (i) => ipcRenderer.invoke('ui:get-rendered-voice', i)
+contextBridge.exposeInMainWorld("dgxAPI", {
+  maxParts: () => ipcRenderer.invoke("config:get-max-parts"),
+  dgxPgmData: () => ipcRenderer.invoke("config:get-dgx-program-data"),
+
+  renderedMidi: (id) => ipcRenderer.invoke("ui:get-rendered-midi"),
+  renderedPart: (id) => ipcRenderer.invoke("ui:get-rendered-part", id),
+
+  getMIDIOutputs: () => ipcRenderer.invoke("midi:get-outputs")
 })
+
