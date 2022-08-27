@@ -2,15 +2,26 @@
 	{
 		"name": "Piano",
 		"voices": [
-				{ "name": "Live! Grand", "msb": 0, "lsb": 113, "pgm": 0 }
+      { "name": "Live! Grand", "msb": 0, "lsb": 113, "pgm": 0 }
 		]
 	},
+  {
+    "name": "E. Piano",
+    "voices": [
+      { "name": "Galaxy EP", "msb": 0, "lsb": 114, "pgm": 4 },
+      { "name": "Funky Electric Piano", "msb": 0, "lsb": 112, "pgm": 4 },
+      { "name": "DX Modern Elec. Piano", "msb": 0, "lsb": 112, "pgm": 5 },
+      { "name": "Hyper Tines", "msb": 0, "lsb": 113, "pgm": 5 },
+      { "name": "Venus Electric Piano", "msb": 0, "lsb": 114, "pgm": 5 },
+      { "name": "Clavi", "msb": 0, "lsb": 112, "pgm": 7 }
+    ]
+  },
 	{
 		"name": "Synth Pads",
 		"voices": [
-				{ "name": "New Age Pad", "msb": 0, "lsb": 0, "pgm": 88 },
-				{ "name": "Fantasy", "msb": 0, "lsb": 64, "pgm": 88 },
-				{ "name": "Warm Pad", "msb": 0, "lsb": 0, "pgm": 89 }
+      { "name": "New Age Pad", "msb": 0, "lsb": 0, "pgm": 88 },
+      { "name": "Fantasy", "msb": 0, "lsb": 64, "pgm": 88 },
+      { "name": "Warm Pad", "msb": 0, "lsb": 0, "pgm": 89 }
 		]
 	}
 ]

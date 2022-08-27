@@ -1,11 +1,11 @@
 h2 MIDI Options
 span Midi Status: 
-  span#midi-status
+  span#midi-status= (ready ? (connected ? `MIDI Connected [${outputName}]` : "MIDI Ready [disconnected]") : "MIDI Unable to Start")
 br
 label(for='midi-outputs') Midi Output: 
 select#midi-outputs
   each output in outputs
-    option(value=output)= output
+    option(value=output selected=(output == outputName))= output
 button#midi-connect Connect to DGX-300
 button#midi-test-note Test Note
 

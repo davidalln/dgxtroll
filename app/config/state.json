@@ -1,0 +1,32 @@
+{
+  "midi": {
+    "output_name": "Scarlett 6i6 USB MIDI 1"
+  },
+  "parts": [
+    {
+      "voice_category": 0,
+      "voice_program": 0,
+      "volume": 127,
+      "pan": 64
+    },
+    {
+      "voice_category": 1,
+      "voice_program": 0,
+      "volume": 127,
+      "pan": 64
+    },
+    {
+      "voice_category": 1,
+      "voice_program": 1,
+      "volume": 127,
+      "pan": 64
+    },
+    {
+      "voice_category": 1,
+      "voice_program": 2,
+      "volume": 127,
+      "pan": 64
+    }
+  ]
+}
+
