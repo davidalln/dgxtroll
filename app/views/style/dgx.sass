@@ -1,25 +1,35 @@
 #controller
   display: grid
-  grid-template-columns: auto auto auto auto
+  grid-template-columns: 25% 25% 25% 25%
+
+  .element
+    padding: 1em
+
+  h1
+    text-align: center
+    line-height: 0px
+
+  h2
+    text-align: center
+    line-height: 0px
 
 #header
   grid-column-start: 1
   grid-column-end: 5
   grid-row-start: 1
   grid-row-end: 2
-
-  padding: 10px
-
-  h1
-    text-align: center
-
+  
 #midi
   grid-column-start:1
-  grid-column-end:5
+  grid-column-end: 3
   grid-row-start: 2
   grid-row-end: 3
 
-  padding: 10px
+#blank
+  grid-column-start: 3
+  grid-column-end: 5
+  grid-row-start: 2
+  grid-row-end: 3
 
 #parts
   grid-column-start: 1
@@ -27,31 +37,28 @@
   grid-row-start: 3
   grid-row-end: 4
 
-  display: grid
+  display: grid    
   grid-template-columns: auto auto
-  grid-gap: 10px 10px
-
-  padding: 10px
 
   .part
-    border: 1px dotted black
-    padding: 10px
+    display: grid
+    grid-template-columns: 100%
+    grid-gap: 10px 0px
 
-    h2
-      text-align: center
-      line-height: 0
-    
     .part_voice_selector
       display: grid
-      grid-template-columns: auto auto
-      grid-gap: 10px 10px
-      padding: 10px
+      grid-template-columns: 50% 50%
 
       select
         width: 100%
 
     .part_controls
       display: grid
-      grid-template-columns: auto auto auto
-      grid-gap: 10px 10px
-      padding: 10px
+      grid-template-columns: 33% 33% 34%
+    
+    .part_note_mode
+      display: grid
+      grid-template-columns: 50% 50%
+
+      select
+        width: 100%

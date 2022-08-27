@@ -8,7 +8,9 @@ contextBridge.exposeInMainWorld("dgxAPI", {
   renderedPart_VoiceSelector: (id) => ipcRenderer.invoke("ui:get-rendered-part_voice-selector", id),
 
   setMidiOutput: (name) => ipcRenderer.invoke("api:set-midi-output", name),
+
   setPartVoiceCategory: (id, cat) => ipcRenderer.invoke("api:set-part-voice-category", id, cat),
+  setActiveNoteReceivers: (ch, recv, val) => ipcRenderer.invoke("api:set-active-note-recv", id, recv, val),
 
   sendTestNote: () => ipcRenderer.invoke("api:send-test-note"),
   sendNoteOn: (ch, note) => ipcRenderer.invoke("api:send-note-on", ch, note),

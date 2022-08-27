@@ -6,6 +6,7 @@ label(for='midi-outputs') Midi Output:
 select#midi-outputs
   each output in outputs
     option(value=output selected=(output == outputName))= output
+br
 button#midi-connect Connect to DGX-300
 button#midi-test-note Test Note
 

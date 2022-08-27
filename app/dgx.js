@@ -137,6 +137,14 @@ function createWindow () {
     state.parts[id].voice_program = 0
   })
 
+  ipcMain.handle("api:set-active-note-recv", async (_, id, recv, val) => {
+    switch (recv) {
+      case "keys":
+        
+        break
+    }
+  })
+
   ipcMain.handle("api:send-test-note", async (_) => {
     if (midi.connected) {
       midi.output.ch(0).noteOn('C5').wait(500).noteOff('C5') 

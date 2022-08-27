@@ -41,3 +41,15 @@ div.part_controls
   div
     div.part_fx_controls
       +control_inputs(part_fx_controls)
+div.part_note_mode
+  div
+    input(type='checkbox' id='part-' + ch + '-recv-keys')
+    label(for='part-' + ch + '-recv-keys') Receive Keyboard Notes
+    br
+    input(type='checkbox' id='part-' + ch + '-recv-midi' disabled)
+    label(for='part-' + ch + '-recv-midi') Receive Midi Notes
+  div
+    label(for='note-mode') Part #{ch} Note Mode
+    br
+    select#note_mode
+      option(value="note") Note

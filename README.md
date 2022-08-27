@@ -1,1 +1,1 @@
-DGX (300/500) midi conTROLLer
+Yamaha DGX (300/500) midi conTROLLer

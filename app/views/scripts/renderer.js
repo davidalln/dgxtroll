@@ -1,3 +1,21 @@
+const noteKeyMap = {
+  90: 60,  83: 61,  88: 62,   68: 63,
+  67: 64,  86: 65,  71: 66,   66: 67,
+  72: 68,  78: 69,  74: 70,   77: 71,
+  188: 72, 76: 73,  190: 74,  186: 75,
+  191: 76, 81: 72,  50: 73,   87: 74,
+  51: 75,  69: 76,  82: 77,   53: 78,
+  84: 79,  54: 80,  89: 81,   55: 82,
+  85: 83,  73: 84,  57: 85,   79: 86,
+  48: 87,  80: 88,  219: 89,
+}
+
+const noteState = {
+  numParts: 0,
+  activeKeys: {},
+  activeParts_Keys: {}
+}
+
 async function ui_touchMidi() {
   const renderedMidi = await dgxAPI.renderedMidi()
   $("#midi").html(renderedMidi)
@@ -35,81 +53,51 @@ async function ui_touchPart(part) {
 
   await ui_touchPart_VoiceSelector(part)
 
+  // connect control sliders to sending CC midi
   $(`#part-${part} .part_control`).each(async function(_, ) {
     $(this).on("input", async function() {
       dgxAPI.sendControl(part, $(this).attr("name"), $(this).val())
     })
+  })
+
+  // connect option to receive keyboard/midi notes
+  $(`#part-${part}-recv-keys`).change(async function(_) {
+    console.log($(this).val())
+    if ($(this).is(":checked")) noteState.activeParts_Keys[part] = true
+    else delete noteState.activeParts_Keys[part]
   })
 }
 
 $(document).ready(async () => {
   ui_touchMidi()
 
-  const maxParts = await dgxAPI.maxParts()
+  noteState.numParts = await dgxAPI.maxParts()
   
-  for (var part = 0; part < maxParts; part++) {
-    $("<div>").attr({class: "part", id: `part-${part}`}).appendTo("#parts")
+  for (var part = 0; part < noteState.numParts; part++) {
+    $("<div>").attr({class: "element part", id: `part-${part}`}).appendTo("#parts")
     await ui_touchPart(part)
     await dgxAPI.sendProgramChange(part, $(`#part-${part}-voice option:selected`).val())
   }
 
 })
 
-const noteKeyMap = {
-  90: 60,
-  83: 61,
-  88: 62,
-  68: 63,
-  67: 64,
-  86: 65,
-  71: 66,
-  66: 67,
-  72: 68,
-  78: 69,
-  74: 70,
-  77: 71,
-  188: 72,
-  76: 73,
-  190: 74,
-  186: 75,
-  191: 76,
-  81: 72,  // q - C4
-  50: 73,   // 2 - C#4
-  87: 74,  // w - D4
-  51: 75,   // 3 - D#4
-  69: 76,  // e - E4
-  82: 77,  // r - F4
-  53: 78,   // 5 - F#4
-  84: 79,  // t - G4
-  54: 80,   // 6 - G#4
-  89: 81,  // y - A5
-  55: 82,   // 7 - A#5
-  85: 83,  // u - B5
-  73: 84,  // i - C5
-  57: 85,   // 9 - C#5
-  79: 86,  // o - D5
-  48: 87,   // 0 - D#5
-  80: 88,  // p - E5
-  219: 89,   // [ - F5
-}
-
-const keyState = {}
-
 $(document).keydown(async function(e) {
-  console.log(e.which)
   if (e.which in noteKeyMap) {
-    if (!(e.which in keyState)) {
-      keyState[e.which] = noteKeyMap[e.which]
-      dgxAPI.sendNoteOn(0, keyState[e.which])
+    if (!(e.which in noteState.activeKeys)) {
+      noteState.activeKeys[e.which] = noteKeyMap[e.which]
+      for (var p = 0; p < noteState.numParts; p++) {
+        if (p in noteState.activeParts_Keys) {
+          dgxAPI.sendNoteOn(p, noteState.activeKeys[e.which])
+        }
+      }
     }
   }
 })
 
 $(document).keyup(async function(e) {
-  if (e.which in keyState) {
-    dgxAPI.sendNoteOff(0, keyState[e.which])
-    delete keyState[e.which]
+  if (e.which in noteState.activeKeys) {
+    dgxAPI.sendNoteOff(0, noteState.activeKeys[e.which])
+    delete noteState.activeKeys[e.which]
   }
 })
-
 
