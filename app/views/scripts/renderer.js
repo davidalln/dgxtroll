@@ -96,7 +96,12 @@ $(document).keydown(async function(e) {
 
 $(document).keyup(async function(e) {
   if (e.which in noteState.activeKeys) {
-    dgxAPI.sendNoteOff(0, noteState.activeKeys[e.which])
+    for (var p = 0; p < noteState.numParts; p++) {
+      if (p in noteState.activeParts_Keys) {
+        dgxAPI.sendNoteOff(p, noteState.activeKeys[e.which])
+      }
+    }
+
     delete noteState.activeKeys[e.which]
   }
 })
