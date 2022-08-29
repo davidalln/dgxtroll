@@ -42,7 +42,7 @@ div.part_controls
     div.part_fx_controls
       +control_inputs(part_fx_controls)
 div
-  div.part_note_mode
+  div.part_note_mode_options
     div
       input(type='checkbox' id='part-' + ch + '-recv-keys')
       label(for='part-' + ch + '-recv-keys') Receive Keyboard Notes
@@ -52,5 +52,18 @@ div
     div
       label(for='note-mode') Part #{ch} Note Mode
       br
-      select#note_mode
+      select(id='part-' + ch + '-note-mode')
         option(value="note") Note
+  div(id='part-' + ch + '-note-mode-note' class='part_' + ch + '_note_mode')
+    h3 Note Mode: Note
+    label(for='part-' + ch + '-note-oct') Octave 
+      span(id='part-' + ch + '-note-oct-data') []
+    br
+    input(type='range' id='part-' + ch + '-note-oct')
+    br
+    label(for='part-' + ch + '-note-semi') Semitone 
+      span(id='part-' + ch + '-note-semi-data') []
+    br
+    input(type='range' id='part-' + ch + '-note-semi')
+  div.part_note_mode_chord(id='part-' + ch + 'note-mode-chord')
+    h3 Note Mode: Chord

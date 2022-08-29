@@ -10,10 +10,49 @@ const noteKeyMap = {
   48: 87,  80: 88,  219: 89,
 }
 
-const noteState = {
+const octaveInputMap = [
+  -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4,
+  -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3,
+  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+]
+
+const semitoneInputMap = [
+  -12, -12, -12,
+  -11, -11, -11, -11,
+  -10, -10, -10, -10,
+  -9, -9, -9, -9,
+  -8, -8, -8, -8,
+  -7, -7, -7, -7,
+  -6, -6, -6, -6,
+  -5, -5, -5, -5,
+  -4, -4, -4, -4,
+  -3, -3, -3, -3,
+  -2, -2, -2, -2,
+  -1, -1, -1, -1,
+  0, 0, 0, 0, 0, 0, 0, 
+  1, 1, 1, 1,
+  2, 2, 2, 2,
+  3, 3, 3, 3,
+  4, 4, 4, 4,
+  5, 5, 5, 5,
+  6, 6, 6, 6,
+  7, 7, 7, 7,
+  8, 8, 8, 8,
+  9, 9, 9, 9,
+  10, 10, 10, 10,
+  11, 11, 11, 11,
+  12, 12, 12,
+]
+
+const dgxState = {
   numParts: 0,
-  activeKeys: {},
-  activeParts_Keys: {}
+  activeKeysDown: {},
 }
 
 async function ui_touchMidi() {
@@ -62,18 +101,26 @@ async function ui_touchPart(part) {
 
   // connect option to receive keyboard/midi notes
   $(`#part-${part}-recv-keys`).change(async function(_) {
-    console.log($(this).val())
-    if ($(this).is(":checked")) noteState.activeParts_Keys[part] = true
-    else delete noteState.activeParts_Keys[part]
   })
+
+  // update note mode ui oct/semi sliders
+  $(`#part-${part}-note-oct`).on("input", async function() {
+    $(`#part-${part}-note-oct-data`).html(`[${octaveInputMap[$(this).val()]}]`)
+  })
+  $(`#part-${part}-note-oct-data`).html(`[${octaveInputMap[$(`#part-${part}-note-oct`).val()]}]`)
+
+  $(`#part-${part}-note-semi`).on("input", async function() {
+    $(`#part-${part}-note-semi-data`).html(`[${semitoneInputMap[$(this).val()]}]`)
+  })
+  $(`#part-${part}-note-semi-data`).html(`[${semitoneInputMap[$(`#part-${part}-note-semi`).val()]}]`)
 }
 
 $(document).ready(async () => {
   ui_touchMidi()
 
-  noteState.numParts = await dgxAPI.maxParts()
+  dgxState.numParts = await dgxAPI.maxParts()
   
-  for (var part = 0; part < noteState.numParts; part++) {
+  for (var part = 0; part < dgxState.numParts; part++) {
     $("<div>").attr({class: "element part", id: `part-${part}`}).appendTo("#parts")
     await ui_touchPart(part)
     await dgxAPI.sendProgramChange(part, $(`#part-${part}-voice option:selected`).val())
@@ -81,13 +128,52 @@ $(document).ready(async () => {
 
 })
 
+async function sendKeyNotesOff(k) {
+  if (k in dgxState.activeKeysDown) {
+    if (Object.keys(dgxState.activeKeysDown[k].parts).length > 0) {
+      Object.keys(dgxState.activeKeysDown[k].parts).forEach((part) => {
+        console.log("gonna remove some notes")
+        for (var i = 0; i < dgxState.activeKeysDown[k].parts[part].notes.length; i++) {
+          dgxAPI.sendNoteOff(part, dgxState.activeKeysDown[k].parts[part].notes[i])
+        }
+      })
+    }
+    delete dgxState.activeKeysDown[k]
+  }
+
+  console.log(dgxState.activeKeysDown)
+}
+
 $(document).keydown(async function(e) {
-  if (e.which in noteKeyMap) {
-    if (!(e.which in noteState.activeKeys)) {
-      noteState.activeKeys[e.which] = noteKeyMap[e.which]
-      for (var p = 0; p < noteState.numParts; p++) {
-        if (p in noteState.activeParts_Keys) {
-          dgxAPI.sendNoteOn(p, noteState.activeKeys[e.which])
+  if (e.which in noteKeyMap && !(e.which in dgxState.activeKeysDown)) {
+    dgxState.activeKeysDown[e.which] = {
+      base: noteKeyMap[e.which],
+      parts: {}
+    }
+
+    for (var part = 0; part < dgxState.numParts; part++) {
+      const notes = []
+
+      if ($(`#part-${part}-recv-keys`).is(":checked")) {
+        switch ($(`#part-${part}-note-mode`).val()) {
+          case "note":
+              const oct = octaveInputMap[$(`#part-${part}-note-oct`).val()]
+              const semi = semitoneInputMap[$(`#part-${part}-note-semi`).val()]
+
+              notes.push(
+                (12 * oct) + semi + noteKeyMap[e.which]
+              )
+          break;
+        }
+      }
+
+      if (notes.length > 0) {
+        for (var i = 0; i < notes.length; i++) {
+          dgxAPI.sendNoteOn(part, notes[i])
+        }
+
+        dgxState.activeKeysDown[e.which].parts[part] = {
+          notes: [...notes]
         }
       }
     }
@@ -95,14 +181,6 @@ $(document).keydown(async function(e) {
 })
 
 $(document).keyup(async function(e) {
-  if (e.which in noteState.activeKeys) {
-    for (var p = 0; p < noteState.numParts; p++) {
-      if (p in noteState.activeParts_Keys) {
-        dgxAPI.sendNoteOff(p, noteState.activeKeys[e.which])
-      }
-    }
-
-    delete noteState.activeKeys[e.which]
-  }
+  sendKeyNotesOff(e.which)
 })
 
