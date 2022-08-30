@@ -1,3 +1,4 @@
+/*
 const noteKeyMap = {
   90: 60,  83: 61,  88: 62,   68: 63,
   67: 64,  86: 65,  71: 66,   66: 67,
@@ -416,4 +417,4 @@ $(document).keydown(async function(e) {
 $(document).keyup(async function(e) {
   sendKeyNotesOff(e.which)
 })
-
+*/
