@@ -30,6 +30,34 @@
       "part_reverb": 32,
       "part_chorus": 32,
       "part_dsp": 32
+    },
+    {
+      "voice_category": 0,
+      "voice_program": 0,
+      "part_volume": 127,
+      "part_pan": 64,
+      "part_attack": 32,
+      "part_release": 64,
+      "part_expression": 127,
+      "part_harmonics": 64,
+      "part_brightness": 96,
+      "part_reverb": 32,
+      "part_chorus": 32,
+      "part_dsp": 32
+    },
+    {
+      "voice_category": 0,
+      "voice_program": 0,
+      "part_volume": 127,
+      "part_pan": 64,
+      "part_attack": 32,
+      "part_release": 64,
+      "part_expression": 127,
+      "part_harmonics": 64,
+      "part_brightness": 96,
+      "part_reverb": 32,
+      "part_chorus": 32,
+      "part_dsp": 32
     }
   ]
 }
