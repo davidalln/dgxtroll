@@ -148,8 +148,6 @@ async function spreadChord(part, map) {
     }
   }
 
-  console.log(currentChord)
-
   const currentChordLength = Object.keys(currentChord).length
   if (currentChordLength > 0) {
     Object.keys(currentChord).forEach((c, i) => {
@@ -197,9 +195,6 @@ async function invertChord(part, direction) {
       }
     }
   }
-
-  console.log(currentChord)
-  console.log(highNote)
 
   if (Object.keys(currentChord).length > 0 && Object.keys(highNote).length > 0) {
     currentChord[highNote.position].oct += direction
@@ -302,46 +297,6 @@ async function ui_touchPart(part) {
   $(`#part-${part}-chord-spread-out`).click(async function(_) { spreadChord(part, spreadOutMap) })
   $(`#part-${part}-chord-spread-up`).click(async function(_) { spreadChord(part, spreadUpMap) })
 
-
-  /*
-  $(`#part-${part}-chord-inv-down`).click(async function(_) {
-    const currentChord = {}
-    const highNote = {}
-
-    for (let c = 0; c < 6; c++) {
-      if ($(`#part-${part}-chord-${c}-active`).is(":checked")) {
-        const oct = octaveInputMap[$(`#part-${part}-chord-${c}-oct`).val()]
-        const semi = semitoneInputMap[$(`#part-${part}-chord-${c}-semi`).val()]
-        const note = 12 * oct + semi
-
-        if (Object.keys(highNote).length == 0 || note > highNote.note) {
-          highNote.position = c
-          highNote.note = note
-        }
-
-        currentChord[c] = {
-          oct: oct,
-          semi: semi
-        }
-      }
-    }
-
-    console.log(currentChord)
-    console.log(highNote)
-
-    if (Object.keys(currentChord).length > 0) {
-      currentChord[highNote.position].oct -= 1
-    }
-
-    Object.keys(currentChord).forEach((c) => {
-      $(`#part-${part}-chord-${c}-oct`).val(octaveToInputMap[currentChord[c].oct + 4])
-      $(`#part-${part}-chord-${c}-semi`).val(semitoneToInputMap[currentChord[c].semi + 12])
-      $(`#part-${part}-chord-${c}-oct-data`).html(`[${octaveInputMap[$(`#part-${part}-chord-${c}-oct`).val()]}]`)
-      $(`#part-${part}-chord-${c}-semi-data`).html(`[${semitoneInputMap[$(`#part-${part}-chord-${c}-semi`).val()]}]`)
-    })
-  })
-  */
-
   for (let c = 0; c < 6; c++) {
     $(`#part-${part}-chord-${c}-active`).change(async function(_) {
       $(`#part-${part}-chord-${c}-oct`).prop("disabled", !($(this).is(":checked")))
@@ -377,11 +332,9 @@ async function ui_touchPart(part) {
         $(`#part-${part}-note-mode-none`).show()
         break;
       case "note":
-        console.log("got here!")
         $(`#part-${part}-note-mode-note`).show()
         break;
       case "chord":
-        console.log("got there!")
         $(`#part-${part}-note-mode-chord`).show()
         break;
     }
@@ -412,8 +365,6 @@ async function sendKeyNotesOff(k) {
     }
     delete dgxState.activeKeysDown[k]
   }
-
-  console.log(dgxState.activeKeysDown)
 }
 
 $(document).keydown(async function(e) {
@@ -429,13 +380,23 @@ $(document).keydown(async function(e) {
       if ($(`#part-${part}-recv-keys`).is(":checked")) {
         switch ($(`#part-${part}-note-mode`).val()) {
           case "note":
-              const oct = octaveInputMap[$(`#part-${part}-note-oct`).val()]
-              const semi = semitoneInputMap[$(`#part-${part}-note-semi`).val()]
+            const oct = octaveInputMap[$(`#part-${part}-note-oct`).val()]
+            const semi = semitoneInputMap[$(`#part-${part}-note-semi`).val()]
+
+            notes.push(
+              (12 * oct) + semi + noteKeyMap[e.which]
+            )
+            break;
+          case "chord":
+            for (let c = 0; c < 6; c++) {
+              const oct = octaveInputMap[$(`#part-${part}-chord-${c}-oct`).val()]
+              const semi = semitoneInputMap[$(`#part-${part}-chord-${c}-semi`).val()]
 
               notes.push(
                 (12 * oct) + semi + noteKeyMap[e.which]
               )
-          break;
+            }
+            break;
         }
       }
 
