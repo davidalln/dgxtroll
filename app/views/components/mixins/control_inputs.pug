@@ -1,0 +1,12 @@
+mixin control_inputs(pid, controls)
+  each control in controls
+    - var ccid = control.label.toLowerCase().replace(" ", "_")
+    - var cid = `${pid}${ccid}`
+    div.subcontroll
+      label(for=cid)= control.label
+      br
+      case control.type
+        when "select"
+          select(id=cid)
+        default
+          input(type=control.type id=cid)

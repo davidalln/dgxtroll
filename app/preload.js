@@ -1,11 +1,29 @@
 const { contextBridge, ipcRenderer } = require("electron")
 
 contextBridge.exposeInMainWorld("dgxAPI", {
+  getBank: () => ipcRenderer.invoke("api:get-dgx-bank"),
+
+  renderChannelUi: (chid) => ipcRenderer.invoke("ui:render-ui-channel", chid),
+
+
+  /*
+
+
+
+
+
+
+
+
+
+
+
+
+
   maxParts: () => ipcRenderer.invoke("config:get-max-parts"),
 
   renderedMidi: (id) => ipcRenderer.invoke("ui:get-rendered-midi"),
   renderedPart: (id) => ipcRenderer.invoke("ui:get-rendered-part", id),
-  renderedPart_VoiceSelector: (id) => ipcRenderer.invoke("ui:get-rendered-part_voice-selector", id),
 
   setMidiOutput: (name) => ipcRenderer.invoke("api:set-midi-output", name),
 
@@ -19,5 +37,6 @@ contextBridge.exposeInMainWorld("dgxAPI", {
   sendControl: (ch, cc, val) => ipcRenderer.invoke("api:send-control", ch, cc ,val),
   sendVolume: (ch, vol) => ipcRenderer.invoke("api:send-volume", ch, vol),
   sendPan: (ch, pan) => ipcRenderer.invoke("api:send-pan", ch, pan),
+  */
 })
 

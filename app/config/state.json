@@ -1,6 +1,6 @@
 {
   "midi": {
-    "output_name": "Scarlett 6i6 USB MIDI 1"
+    "midi-outputs": "Scarlett 6i6 USB MIDI 1"
   },
   "parts": [
     {

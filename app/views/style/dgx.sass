@@ -1,104 +1,159 @@
-$color_bg: #fdf6e3
-$color_bg_highlight: #eee8d5
-$color_fg_secondary: #93a1a1
-$color_fg_primary: #657b83
-$color_fg_em: #586e75
+// Solarized
+// https://ethanschoonover.com/solarized/
+$base03:    #002b36
+$base02:    #073642
+$base01:    #586e75
+$base00:    #657b83
+$base0:     #839496
+$base1:     #93a1a1
+$base2:     #eee8d5
+$base3:     #fdf6e3
+$yellow:    #b58900
+$orange:    #cb4b16
+$red:       #dc322f
+$magenta:   #d33682
+$violet:    #6c71c4
+$blue:      #268bd2
+$cyan:      #2aa198
+$green:     #859900
 
 html
-  background-color: $color_bg
-
-  font-family: Hack, Courier
-  font-size: 0.75em
-  color: $color_fg_primary
-
-  select
-    background-color: $color_bg_highlight
-    font-family: Hack, Courier
-    font-size: 0.9em
-    color: $color_fg_primary
-
-  button
-    border: 1px solid $color_fg_em
-    background-color: $color_fg_secondary
-    font-family: Hack, Courier
-    font-size: 0.9em
-    color: $color_bg_highlight
-
-  label
-    font-weight: bold
-    color: $color_fg_em
-
+  background-color: $base3
+  color: $base02
+  font-family: "Inconsolata", monospace
+  font-size: 1em
+  
 #controller
   display: grid
-  grid-template-columns: 25% 25% 25% 25%
-
-  .element
-    padding: 1em
-
-  h1
-    background-color: $color_bg_highlight
-    color: $color_fg_em
-    text-align: center
-
-  h2
-    background-color: $color_bg_highlight
-    color: $color_fg_em
-    text-align: center
-
-  h3
-    background-color: $color_bg_highlight
-    color: $color_fg_em
-    text-align: center
-
-#header
-  grid-column-start: 1
-  grid-column-end: 5
-  grid-row-start: 1
-  grid-row-end: 2
-  
-#midi
-  grid-column-start:1
-  grid-column-end: 3
-  grid-row-start: 2
-  grid-row-end: 3
-
-  .midi_connect
-    display: grid
-    grid-template-columns: 50% 50%
-
-#blank
-  grid-column-start: 3
-  grid-column-end: 5
-  grid-row-start: 2
-  grid-row-end: 3
-
-#parts
-  grid-column-start: 1
-  grid-column-end: 5
-  grid-row-start: 3
-  grid-row-end: 4
-
-  display: grid    
   grid-template-columns: auto auto auto auto
+  grid-template-rows: auto
+  grid-gap: 1em
 
-  .part
+  .component
     display: grid
     grid-template-columns: 100%
-    grid-gap: 10px 0px
+    grid-gap: 0.5em 0em
 
-    .part_voice_selector
-      display: grid
-      grid-template-columns: 50% 50%
+    .header
+      background-color: $base2
+      color: $base01
+      font-weight: bold
+      font-size: 1.5em
+      text-align: center
 
-    .part_controls
+    .controll
       display: grid
-      grid-template-columns: 33% 33% 34%
+      grid-template-columns: auto
+
+    .controll2
+      display: grid
+      grid-template-columns: auto auto
+
+    .controll3
+      display: grid
+      grid-template-columns: auto auto auto
+
+/*$color_bg: #fdf6e3
+  $color_bg_highlight: #eee8d5
+  $color_fg_secondary: #93a1a1
+  $color_fg_primary: #657b83
+  $color_fg_em: #586e75
+  
+  html
+    background-color: $color_bg
     
-    .part_note_mode_options
+    font-family: Hack, Courier
+    font-size: 0.75em
+    color: $color_fg_primary
+    
+    select
+      background-color: $color_bg_highlight
+      font-family: Hack, Courier
+      font-size: 0.9em
+      color: $color_fg_primary
+    
+    button
+      border: 1px solid $color_fg_em
+      background-color: $color_fg_secondary
+      font-family: Hack, Courier
+      font-size: 0.9em
+      color: $color_bg_highlight
+  
+    label
+      font-weight: bold
+      color: $color_fg_em
+  
+  #controller
+    display: grid
+    grid-template-columns: 25% 25% 25% 25%
+  
+    .element
+      padding: 1em
+  
+    h1
+      background-color: $color_bg_highlight
+      color: $color_fg_em
+      text-align: center
+  
+    h2
+      background-color: $color_bg_highlight
+      color: $color_fg_em
+      text-align: center
+  
+    h3
+      background-color: $color_bg_highlight
+      color: $color_fg_em
+      text-align: center
+  
+  #header
+    grid-column-start: 1
+    grid-column-end: 5
+    grid-row-start: 1
+    grid-row-end: 2
+    
+  #midi
+    grid-column-start:1
+    grid-column-end: 3
+    grid-row-start: 2
+    grid-row-end: 3
+  
+    .midi_connect
       display: grid
       grid-template-columns: 50% 50%
-
-    .part_note_mode_chord_controls
+  
+  #blank
+    grid-column-start: 3
+    grid-column-end: 5
+    grid-row-start: 2
+    grid-row-end: 3
+  
+  #parts
+    grid-column-start: 1
+    grid-column-end: 5
+    grid-row-start: 3
+    grid-row-end: 4
+  
+    display: grid    
+    grid-template-columns: auto auto auto auto
+  
+    .part
       display: grid
-      grid-template-columns: 33% 33% 34%
+      grid-template-columns: 100%
       grid-gap: 10px 0px
+  
+      .part_voice_selector
+        display: grid
+        grid-template-columns: 50% 50%
+  
+      .part_controls
+        display: grid
+        grid-template-columns: 33% 33% 34%
+      
+      .part_note_mode_options
+        display: grid
+        grid-template-columns: 50% 50%
+  
+      .part_note_mode_chord_controls
+        display: grid
+        grid-template-columns: 33% 33% 34%
+        grid-gap: 10px 0px

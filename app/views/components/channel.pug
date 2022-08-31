@@ -1,0 +1,131 @@
+- var chid = `ch-${ch}-`
+
+div.component.channel(id=`${chid}channel`)
+  div.header Channel #{ch}
+
+  -
+    var channel_voice_controls = [ 
+      { label: "Category", type: "select" }, 
+      { label: "Voice", type: "select" } 
+    ]
+  div.controll2
+    +control_inputs(chid, channel_voice_controls)
+
+  -
+    var channel_mix_controls = [
+      { label: "Volume", type: "range" },
+      { label: "Pan", type: "range" },
+      { label: "Expression", type: "range" },
+    ]
+
+    var channel_tone_controls = [
+      { label: "Attack", type: "range" },
+      { label: "Release", type: "range" },
+      { label: "Harmonics", type: "range" },
+      { label: "Brightness", type: "range" },
+    ]
+
+    var channel_fx_controls = [
+      { label: "Reverb Depth", type: "range" },
+      { label: "Chorus Depth", type: "range" },
+      { label: "DSP Depth", type: "range" }
+    ]
+  div.controll3
+    div.subcontroll
+      div.controll
+      +control_inputs(chid, channel_mix_controls)
+    div.subcontroll
+      div.controll
+        +control_inputs(chid, channel_tone_controls)
+    div.subcontroll
+      div.controll
+        +control_inputs(chid, channel_fx_controls)
+    
+//-
+  h2 Part #{ch}
+  div.part_voice_selector(id='part-' + ch + '-voice-selector')
+  div.part_controls
+    mixin control_inputs(controls)
+      each control in controls
+        - var control_id = `${control.name}_${ch}`
+        div.part_row
+          label(for=control_id)= control.label
+          br
+          input.part_control(
+            type='range'
+            name=control.name
+            id=control_id
+            value=midiToDom[part_values[control.name]]
+          )
+    div
+      div.part_mix_controls
+        +control_inputs(part_mix_controls)
+    div
+      div.part_tone_controls
+        +control_inputs(part_tone_controls)
+    div
+      div.part_fx_controls
+        +control_inputs(part_fx_controls)
+  div
+    div.part_note_mode_options
+      div
+        input(type='checkbox' id='part-' + ch + '-recv-keys')
+        label(for='part-' + ch + '-recv-keys') Receive Keyboard Notes
+        br
+        input(type='checkbox' id='part-' + ch + '-recv-midi' disabled)
+        label(for='part-' + ch + '-recv-midi') Receive Midi Notes
+      div
+        label(for='part-' + ch + '-note-mode') Part #{ch} Note Mode
+        br
+        select(id='part-' + ch + '-note-mode')
+          option(value="none") None
+          option(value="note") Note
+          option(value="chord") Chord
+  div.part_note_mode(id='part-' + ch + '-note-mode-none')
+    p asdf
+  div.part_note_mode(id='part-' + ch + '-note-mode-note' class='part_' + ch + '_note_mode')
+    h3 Note Mode: Note
+    label(for='part-' + ch + '-note-oct') Octave 
+      span(id='part-' + ch + '-note-oct-data') []
+    br
+    input(type='range' id='part-' + ch + '-note-oct')
+    br
+    label(for='part-' + ch + '-note-semi') Semitone 
+      span(id='part-' + ch + '-note-semi-data') []
+    br
+    input(type='range' id='part-' + ch + '-note-semi')
+  div.part_note_mode(id='part-' + ch + '-note-mode-chord')
+    h3 Note Mode: Chord
+    div.part_note_mode_chord_controls
+      div
+        label(for='part-' + ch + '-chord-preset') Chord
+        br
+        select(id='part-' + ch + '-chord-preset')
+          option(value="none") 
+      div
+        label Inversion
+        br
+        button(id='part-' + ch + '-chord-inv-down') <<
+        button(id='part-' + ch + '-chord-inv-up') >>
+      div
+        label Spread
+        br
+        button(id='part-' + ch + '-chord-spread-down') <<
+        button(id='part-' + ch + '-chord-spread-out') < >
+        button(id='part-' + ch + '-chord-spread-up') >>
+      - var c = 0
+      while c < 6
+        div
+          input(type='checkbox' id='part-' + ch + '-chord-' + c + '-active')
+          label(for='part-' + ch + '-chord-' + c + '-active') Note #{c} Active
+          br
+          label(for='part-' + ch + '-chord-' + c + '-oct') Octave 
+            span(id='part-' + ch + '-chord-' + c + '-oct-data') []
+          br
+          input(type='range' id='part-' + ch + '-chord-' + c + '-oct')
+          br
+          label(for='part-' + ch + '-chord-' + c + '-semi') Semitone 
+            span(id='part-' + ch + '-chord-' + c + '-semi-data') []
+          br
+          input(type='range' id='part-' + ch + '-chord-' + c + '-semi')
+        - c++

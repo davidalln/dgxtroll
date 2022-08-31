@@ -5,7 +5,7 @@
   "main": "build/dgx.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "copyfiles -u 1 ./app/*.js ./app/views/*.pug ./app/views/components/*.pug ./app/views/style/*.sass ./app/views/scripts/*.js ./app/config/*.json ./build && cp ./node_modules/jquery/dist/jquery.min.js ./build/views/scripts && pug ./build/views/dgx.pug && sass ./build/views/style/dgx.sass ./build/views/style/dgx.css",
+    "build": "copyfiles -u 1 ./app/*.js ./app/views/*.pug ./app/views/components/*.pug ./app/views/components/mixins/*.pug ./app/views/style/*.sass ./app/views/scripts/*.js ./app/config/*.json ./build && cp ./node_modules/jquery/dist/jquery.min.js ./build/views/scripts && pug ./build/views/dgx.pug && sass ./build/views/style/dgx.sass ./build/views/style/dgx.css",
     "start": "npm run build && electron ."
   },
   "author": "",

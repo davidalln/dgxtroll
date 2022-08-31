@@ -2,6 +2,76 @@ const { app, BrowserWindow, ipcMain } = require("electron")
 const path = require("path")
 const fs = require("fs")
 const pug = require("pug")
+
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 1024,
+    height: 768,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js")
+    }
+  })
+
+  ipcMain.handle("api:get-dgx-bank", async function () { return { channels: [0, 0, 0, 0] }})
+
+  const components = [
+    "channel"
+  ]
+
+  const mixins = [
+    "control_inputs"
+  ]
+
+  let fmix = ""
+  mixins.forEach((mixin) => {
+    fmix += 
+      fs.readFileSync(
+        path.join(__dirname, "views", "components", "mixins", `${mixin}.pug`), {
+          encoding: "utf8"
+        }
+      ) 
+      + '\n'
+  })
+
+  components.forEach((component) => {
+    ipcMain.handle(`ui:render-ui-${component}`, async function (_, chid) {
+      const fui = fs.readFileSync(
+        path.join(__dirname, "views", "components", `${component}.pug`), { 
+          encoding: "utf8" 
+        }
+      )
+
+      return pug.compile(fmix + fui)({
+        ch: chid
+      })
+    })
+  })
+
+  win.loadFile(path.join(__dirname, "views/dgx.html"))
+}
+
+
+app.whenReady().then(() => {
+  createWindow()
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit()
+  }
+})
+
+/*
+const { app, BrowserWindow, ipcMain } = require("electron")
+const path = require("path")
+const fs = require("fs")
+const pug = require("pug")
 const JZZ = require("jzz")
 
 // config JSON files
@@ -12,12 +82,10 @@ cConfigDgxPgmData = JSON.parse(fConfigDgxPgmData)
 
 // PUG components
 const fUIMidi = fs.readFileSync(path.join(__dirname, "views", "components", "midi.pug"), { encoding: "utf8" })
-const fUIPart = fs.readFileSync(path.join(__dirname, "views", "components", "part.pug"), { encoding: "utf8" })
-const fUIPart_VoiceSelector = fs.readFileSync(path.join(__dirname, "views", "components", "part_voice-selector.pug"), { encoding: "utf8" })
+const fUIPart = fs.readFileSync(path.join(__dirname, "views", "components", "channel.pug"), { encoding: "utf8" })
 
 const cUIMidi = pug.compile(fUIMidi)
 const cUIPart = pug.compile(fUIPart)
-const cUIPart_VoiceSelector = pug.compile(fUIPart_VoiceSelector)
 
 const state = cConfigDefaultState
 
@@ -115,15 +183,6 @@ function createWindow () {
       midiToDom: midiToDom,
       part_values: state.parts[ch]
     })
-  })
-
-  ipcMain.handle("ui:get-rendered-part_voice-selector", async (_, id) => {
-    return cUIPart_VoiceSelector({ 
-      id: id, 
-      pgm_data: cConfigDgxPgmData, 
-      category: state.parts[id].voice_category,
-      program: state.parts[id].voice_program
-    }) 
   })
 
   // ---- IPC API ----
@@ -236,4 +295,4 @@ app.on("window-all-closed", () => {
     app.quit()
   }
 })
-
+*/

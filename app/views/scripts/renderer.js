@@ -1,3 +1,15 @@
+const dgxState = {
+  bank: {}
+}
+
+$(document).ready(async function() {
+  dgxState.bank = await dgxAPI.getBank()
+
+  for (let ch = 0; ch < dgxState.bank.channels.length; ch++) {
+    $("#controller").append(await dgxAPI.renderChannelUi(ch))
+  }
+})
+
 /*
 const noteKeyMap = {
   90: 60,  83: 61,  88: 62,   68: 63,
