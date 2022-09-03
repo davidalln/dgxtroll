@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld("dgxAPI", {
   getBank: () => ipcRenderer.invoke("api:get-dgx-bank"),
 
   renderChannelUi: (chid) => ipcRenderer.invoke("ui:render-ui-channel", chid),
+  renderNoteUi: (nid) => ipcRenderer.invoke("ui:render-ui-note", nid)
 
 
   /*

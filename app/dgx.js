@@ -12,10 +12,14 @@ function createWindow () {
     }
   })
 
-  ipcMain.handle("api:get-dgx-bank", async function () { return { channels: [0, 0, 0, 0] }})
+  ipcMain.handle("api:get-dgx-bank", async function () { return {
+    activeChannels: 4,
+    activeNotes: 4
+  }})
 
   const components = [
-    "channel"
+    "channel",
+    "note"
   ]
 
   const mixins = [
@@ -34,7 +38,7 @@ function createWindow () {
   })
 
   components.forEach((component) => {
-    ipcMain.handle(`ui:render-ui-${component}`, async function (_, chid) {
+    ipcMain.handle(`ui:render-ui-${component}`, async function (_, cid) {
       const fui = fs.readFileSync(
         path.join(__dirname, "views", "components", `${component}.pug`), { 
           encoding: "utf8" 
@@ -42,7 +46,7 @@ function createWindow () {
       )
 
       return pug.compile(fmix + fui)({
-        ch: chid
+        cid: cid
       })
     })
   })

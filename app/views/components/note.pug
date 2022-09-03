@@ -1,0 +1,43 @@
+- var nid = `note-${cid}-`
+
+div.component.note(id=`${nid}note`)
+  div.header Note #{cid}
+
+  -
+    var note_active_controls = [
+      { label: "Active", type: "checkbox" },
+      { label: "Send To", type: "select", options: [
+        { label: "Channel", value: "channel" },
+        { label: "Arp", value: "arp" }]},
+    ]
+
+    var note_mode_control = [
+      { label: "Mode", type: "select", options: [
+        { label: "None", value: "none" },
+        { label: "Note", value: "note" },
+        { label: "Chord", value: "chord" }]},
+    ]
+
+    var note_global_tuning = [
+      { label: "Global Oct", type: "range" },
+      { label: "Global Semi", type: "range" }
+    ]
+
+    var note_channel_controls = []
+    for (var i = 0; i < 16; i++) {
+      note_channel_controls.push({
+        label: i,
+        type: "checkbox"
+      })
+    }
+
+  div.control2
+    div.subcontrol
+      div.control2
+        +control_inputs(nid, note_active_controls)
+    div.subcontrol
+      div.control8
+        +control_inputs(nid, note_channel_controls)
+    div.subcontrol
+      div.control1
+        +control_inputs(nid, note_mode_control)

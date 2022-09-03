@@ -1,14 +1,14 @@
-- var chid = `ch-${ch}-`
+- var chid = `ch-${cid}-`
 
 div.component.channel(id=`${chid}channel`)
-  div.header Channel #{ch}
+  div.header Channel #{cid}
 
   -
     var channel_voice_controls = [ 
       { label: "Category", type: "select" }, 
       { label: "Voice", type: "select" } 
     ]
-  div.controll2
+  div.control2
     +control_inputs(chid, channel_voice_controls)
 
   -
@@ -30,15 +30,15 @@ div.component.channel(id=`${chid}channel`)
       { label: "Chorus Depth", type: "range" },
       { label: "DSP Depth", type: "range" }
     ]
-  div.controll3
-    div.subcontroll
-      div.controll
-      +control_inputs(chid, channel_mix_controls)
-    div.subcontroll
-      div.controll
+  div.control3
+    div.subcontrol
+      div.control
+        +control_inputs(chid, channel_mix_controls)
+    div.subcontrol
+      div.control
         +control_inputs(chid, channel_tone_controls)
-    div.subcontroll
-      div.controll
+    div.subcontrol
+      div.control
         +control_inputs(chid, channel_fx_controls)
     
 //-

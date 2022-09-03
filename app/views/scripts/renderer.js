@@ -5,8 +5,12 @@ const dgxState = {
 $(document).ready(async function() {
   dgxState.bank = await dgxAPI.getBank()
 
-  for (let ch = 0; ch < dgxState.bank.channels.length; ch++) {
+  for (let ch = 0; ch < dgxState.bank.activeChannels; ch++) {
     $("#controller").append(await dgxAPI.renderChannelUi(ch))
+  }
+
+  for (let n = 0; n < dgxState.bank.activeNotes; n++) {
+    $("#controller").append(await dgxAPI.renderNoteUi(n))
   }
 })
 

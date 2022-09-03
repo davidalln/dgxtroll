@@ -1,12 +1,19 @@
 mixin control_inputs(pid, controls)
   each control in controls
-    - var ccid = control.label.toLowerCase().replace(" ", "_")
+    - var ccid = control.label
     - var cid = `${pid}${ccid}`
-    div.subcontroll
-      label(for=cid)= control.label
-      br
+    div.subcontrol
+      if control.type != "checkbox"
+        label(for=cid)= control.label
+        br
       case control.type
         when "select"
           select(id=cid)
+            if "options" in control
+              each option in control.options
+                option(value=option.val)= option.label
         default
           input(type=control.type id=cid)
+      if control.type == "checkbox"
+        label(for=cid)= control.label
+        br
