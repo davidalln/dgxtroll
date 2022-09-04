@@ -2,10 +2,13 @@ const { contextBridge, ipcRenderer } = require("electron")
 
 contextBridge.exposeInMainWorld("dgxAPI", {
   getBank: () => ipcRenderer.invoke("api:get-dgx-bank"),
+  getGlobalOptions: (options) => ipcRenderer.invoke("api:get-global-options", options),
+  getAllGlobalOptions: () => ipcRenderer.invoke("api:get-global-options", undefined),
+  sendControlInput: (name, id, control, value) => ipcRenderer.invoke("api:send-control-input", name, id, control, value),
 
-  renderChannelUi: (chid) => ipcRenderer.invoke("ui:render-ui-channel", chid),
-  renderNoteUi: (nid) => ipcRenderer.invoke("ui:render-ui-note", nid)
+  renderComponent: (component, id) => ipcRenderer.invoke("ui:render-component", component, id),
 
+  flashControl: (callback) => ipcRenderer.on("ui:flash-control", callback),
 
   /*
 

@@ -1,14 +1,40 @@
-h2 MIDI Options
-div.midi_connect
-  div
-    label Midi Status 
-    br
-    span#midi-status= (ready ? (connected ? `MIDI Connected [${outputName}]` : "MIDI Ready [disconnected]") : "MIDI Unable to Start")
-  div
-    label(for='midi-outputs') Midi Output 
-    select#midi-outputs
-      each output in outputs
-        option(value=output selected=(output == outputName))= output
-    br
-    button#midi-connect Connect
-    button#midi-test-note Test Note
+- var mid = `midi-${cid}`
+
+div.component.midi(id=`${mid}-midi`)
+  div.header midi
+
+  -
+    var midi_input_controls = [
+      { label: "Input Active", type: "checkbox", elid: "input_active", onInput: "none" },
+      { label: "", type: "select", elid: "data-input_device", onInput: "out" },
+      { label: "", type: "span", elid: "data-input_status", onInput: "none" }
+    ]
+
+    var midi_output_controls = [
+      { label: "Output Active", type: "checkbox", elid: "output_active", onInput: "none" },
+      { label: "", type: "select", elid: "data-output_device", onInput: "out" },
+      { label: "", type: "span", elid: "data-output_status", onInput: "none" }
+    ]
+  div.control2
+    div.subcontrol
+      div.control
+        +control_inputs(mid, midi_input_controls)
+    div.subcontrol
+      div.control
+        +control_inputs(mid, midi_output_controls)
+
+//-
+  h2 MIDI Options
+  div.midi_connect
+    div
+      label Midi Status 
+      br
+      span#midi-status= (ready ? (connected ? `MIDI Connected [${outputName}]` : "MIDI Ready [disconnected]") : "MIDI Unable to Start")
+    div
+      label(for='midi-outputs') Midi Output 
+      select#midi-outputs
+        each output in outputs
+          option(value=output selected=(output == outputName))= output
+      br
+      button#midi-connect Connect
+      button#midi-test-note Test Note

@@ -17,22 +17,34 @@ $blue:      #268bd2
 $cyan:      #2aa198
 $green:     #859900
 
+$container-size: 960px
+$gap-size: 20px
+$small-gap-size: floor(calc($gap-size / 2))
+$num-columns: 2
+$component-size: floor(calc(($container-size - calc($gap-size * ($num-columns - 1))) / $num-columns))
+
 html
   background-color: $base3
   color: $base02
   font-family: "Inconsolata", monospace
   font-size: 1em
   
+#container
+  display: flex
+  align-items: center
+  justify-content: center
+
 #controller
   display: grid
-  grid-template-columns: auto auto auto auto
+  grid-template-columns: repeat($num-columns, $component-size)
   grid-template-rows: auto
-  grid-gap: 1em
+  grid-gap: $gap-size $gap-size
 
   .component
     display: grid
     grid-template-columns: 100%
-    grid-gap: 0.5em 0em
+    grid-gap: $small-gap-size 0px
+    align-self: start
 
     .header
       background-color: $base2
@@ -41,133 +53,24 @@ html
       font-size: 1.5em
       text-align: center
 
-    .control
-      display: grid
-      grid-template-columns: 100%
+    @mixin ctl($sizes, $parent-width, $gap-width, $depth)
+      @each $size in $sizes
+        .control#{$size}
+          display: grid
 
-    .control2
-      display: grid
-      grid-template-columns: repeat(2, 50%)
+          $gaps: $gap-width * $size
+          grid-gap: $gap-width $gap-width
 
-    .control3
-      display: grid
-      grid-template-columns: repeat(3, 33%)
+          $column-size: floor(calc(($parent-width - $gaps) / $size))
+          grid-template-columns: repeat($size, $column-size)
 
-    .control4
-      display: grid
-      grid-template-columns: repeat(4, 25%)
+          select
+            width: floor(0.75 * $column-size)
 
-    .control8
-      display: grid
-      grid-template-columns: repeat(8, auto)
+          @if $depth > 0
+            .subcontrol
+              @include ctl($sizes, $column-size, 0px, $depth - 1)
 
-    .control16
-      display: grid
-      grid-template-columns: repeat(16, auto)
+    $control-sizes: (1, 2, 3, 4, 8, 16)
+    @include ctl($control-sizes, $component-size, $small-gap-size, 1)
 
-
-
-/*$color_bg: #fdf6e3
-  $color_bg_highlight: #eee8d5
-  $color_fg_secondary: #93a1a1
-  $color_fg_primary: #657b83
-  $color_fg_em: #586e75
-  
-  html
-    background-color: $color_bg
-    
-    font-family: Hack, Courier
-    font-size: 0.75em
-    color: $color_fg_primary
-    
-    select
-      background-color: $color_bg_highlight
-      font-family: Hack, Courier
-      font-size: 0.9em
-      color: $color_fg_primary
-    
-    button
-      border: 1px solid $color_fg_em
-      background-color: $color_fg_secondary
-      font-family: Hack, Courier
-      font-size: 0.9em
-      color: $color_bg_highlight
-  
-    label
-      font-weight: bold
-      color: $color_fg_em
-  
-  #controller
-    display: grid
-    grid-template-columns: 25% 25% 25% 25%
-  
-    .element
-      padding: 1em
-  
-    h1
-      background-color: $color_bg_highlight
-      color: $color_fg_em
-      text-align: center
-  
-    h2
-      background-color: $color_bg_highlight
-      color: $color_fg_em
-      text-align: center
-  
-    h3
-      background-color: $color_bg_highlight
-      color: $color_fg_em
-      text-align: center
-  
-  #header
-    grid-column-start: 1
-    grid-column-end: 5
-    grid-row-start: 1
-    grid-row-end: 2
-    
-  #midi
-    grid-column-start:1
-    grid-column-end: 3
-    grid-row-start: 2
-    grid-row-end: 3
-  
-    .midi_connect
-      display: grid
-      grid-template-columns: 50% 50%
-  
-  #blank
-    grid-column-start: 3
-    grid-column-end: 5
-    grid-row-start: 2
-    grid-row-end: 3
-  
-  #parts
-    grid-column-start: 1
-    grid-column-end: 5
-    grid-row-start: 3
-    grid-row-end: 4
-  
-    display: grid    
-    grid-template-columns: auto auto auto auto
-  
-    .part
-      display: grid
-      grid-template-columns: 100%
-      grid-gap: 10px 0px
-  
-      .part_voice_selector
-        display: grid
-        grid-template-columns: 50% 50%
-  
-      .part_controls
-        display: grid
-        grid-template-columns: 33% 33% 34%
-      
-      .part_note_mode_options
-        display: grid
-        grid-template-columns: 50% 50%
-  
-      .part_note_mode_chord_controls
-        display: grid
-        grid-template-columns: 33% 33% 34%
-        grid-gap: 10px 0px

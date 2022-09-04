@@ -1,35 +1,36 @@
-- var chid = `ch-${cid}-`
+- var chid = `ch-${cid}`
 
-div.component.channel(id=`${chid}channel`)
-  div.header Channel #{cid}
+div.component.channel(id=`${chid}-ch`)
+  div.header ch #{cid}
 
   -
     var channel_voice_controls = [ 
-      { label: "Category", type: "select" }, 
-      { label: "Voice", type: "select" } 
+      { label: "Category", type: "select", elid: "data-pgm_category", onInput: "update-pgm_voice" }, 
+      { label: "Voice", type: "select", elid: "pgm_category-pgm_voice", onInput: "out" } 
     ]
   div.control2
     +control_inputs(chid, channel_voice_controls)
 
   -
     var channel_mix_controls = [
-      { label: "Volume", type: "range" },
-      { label: "Pan", type: "range" },
-      { label: "Expression", type: "range" },
+      { label: "Volume", type: "range", elid: "volume", onInput: "out" },
+      { label: "Pan", type: "range", elid: "pan", onInput: "out" },
+      { label: "Expression", type: "range", elid: "expression", onInput: "out" },
     ]
 
     var channel_tone_controls = [
-      { label: "Attack", type: "range" },
-      { label: "Release", type: "range" },
-      { label: "Harmonics", type: "range" },
-      { label: "Brightness", type: "range" },
+      { label: "Attack", type: "range", elid: "attack", onInput: "out" },
+      { label: "Release", type: "range", elid: "release", onInput: "out" },
+      { label: "Harmonics", type: "range", elid: "harmonics", onInput: "out" },
+      { label: "Brightness", type: "range", elid: "brightness", onInput: "out" },
     ]
 
     var channel_fx_controls = [
-      { label: "Reverb Depth", type: "range" },
-      { label: "Chorus Depth", type: "range" },
-      { label: "DSP Depth", type: "range" }
+      { label: "Reverb Depth", type: "range", elid: "reverb", onInput: "out" },
+      { label: "Chorus Depth", type: "range", elid: "chorus", onInput: "out" },
+      { label: "DSP Depth", type: "range", elid: "dsp", onInput: "out" }
     ]
+
   div.control3
     div.subcontrol
       div.control
@@ -55,7 +56,7 @@ div.component.channel(id=`${chid}channel`)
             type='range'
             name=control.name
             id=control_id
-            value=midiToDom[part_values[control.name]]
+            value=outToDom[part_values[control.name]]
           )
     div
       div.part_mix_controls
@@ -72,8 +73,8 @@ div.component.channel(id=`${chid}channel`)
         input(type='checkbox' id='part-' + ch + '-recv-keys')
         label(for='part-' + ch + '-recv-keys') Receive Keyboard Notes
         br
-        input(type='checkbox' id='part-' + ch + '-recv-midi' disabled)
-        label(for='part-' + ch + '-recv-midi') Receive Midi Notes
+        input(type='checkbox' id='part-' + ch + '-recv-out' disabled)
+        label(for='part-' + ch + '-recv-out') Receive Midi Notes
       div
         label(for='part-' + ch + '-note-mode') Part #{ch} Note Mode
         br

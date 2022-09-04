@@ -1,19 +1,23 @@
-mixin control_inputs(pid, controls)
+mixin control_inputs(cid, controls)
   each control in controls
-    - var ccid = control.label
-    - var cid = `${pid}${ccid}`
+    - 
+      var _id = `${cid}-${control.onInput}-${control.elid}`
+      var _class = `control_input ${control.elid}`
+    
     div.subcontrol
-      if control.type != "checkbox"
-        label(for=cid)= control.label
+      if control.type != "checkbox" && control.label != ""
+        label(for=_id)= control.label
         br
       case control.type
         when "select"
-          select(id=cid)
+          select(id=_id class=_class)
             if "options" in control
               each option in control.options
                 option(value=option.val)= option.label
+        when "span"
+          span(id=_id class=_class)
         default
-          input(type=control.type id=cid)
-      if control.type == "checkbox"
-        label(for=cid)= control.label
+          input(type=control.type id=_id class=_class)
+      if control.type == "checkbox" && control.label != ""
+        label(for=_id)= control.label
         br

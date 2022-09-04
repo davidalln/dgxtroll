@@ -1,19 +1,182 @@
 const dgxState = {
-  bank: {}
+  bank: {},
+  global: {},
+  outLock: true
 }
 
-$(document).ready(async function() {
+async function syncBank() {
   dgxState.bank = await dgxAPI.getBank()
+  dgxState.global = await dgxAPI.getAllGlobalOptions()
+}
 
-  for (let ch = 0; ch < dgxState.bank.activeChannels; ch++) {
-    $("#controller").append(await dgxAPI.renderChannelUi(ch))
+async function touchUi() {
+  // RENDER UI
+  const uiElements = [
+    { name: "midi" },
+    { name: "bank" },
+    { name: "dsp" },
+    { name: "channel", spawn: dgxState.bank.activeChannels },
+    { name: "note", spawn: dgxState.bank.activeNotes }
+  ]
+
+  for (let c = 0; c < uiElements.length; c++) {
+    const numSpawn = ("spawn" in uiElements[c]) ? uiElements[c].spawn : 1
+    for (let s = 0; s < numSpawn; s++) {
+      $("#controller").append(await dgxAPI.renderComponent(uiElements[c].name, s))
+    }
   }
 
-  for (let n = 0; n < dgxState.bank.activeNotes; n++) {
-    $("#controller").append(await dgxAPI.renderNoteUi(n))
-  }
+  // HANDLE CONTROL INPUTS
+  outLock = true
+  $(".control_input").each(function() {
+    const ctrlAttrs = $(this).attr("id").split("-")
+
+    var nameIdx = 0
+    const input = {
+      cmpName: ctrlAttrs[nameIdx++],
+      cmpId: parseInt(ctrlAttrs[nameIdx++]),
+      onInput: ctrlAttrs[nameIdx++],
+      target: "",
+      ctrlName: ctrlAttrs.slice(nameIdx, ctrlAttrs.length).join("-")
+    }
+
+    if ((["update", "show"]).includes(input.onInput)) {
+      input.target = ctrlAttrs[nameIdx++]
+      input.ctrlName = ctrlAttrs.slice(nameIdx, ctrlAttrs.length).join("-")
+    }
+
+    const data = dgxState.global[input.cmpName]
+    $(this).on("input", async function() {
+      const parentName = `${input.cmpName}-${input.cmpId}-${input.cmpName}`
+      switch (input.onInput) {
+        case "update":
+          const update = {
+            selected: $(this).find(":selected")
+          }
+
+          const subInput = $(`#${parentName} .${input.ctrlName}-${input.target}`)
+          subInput.find("option").remove()
+
+          const sUpVal = update.selected.val()
+          console.log(`input (${input.ctrlName} ${sUpVal} ${input.target}): `)
+          console.log(data)
+          const targetData = data[input.ctrlName][sUpVal][input.target]
+          targetData.forEach((datum, idx) => {
+            subInput.append(new Option(datum.label, `${sUpVal}-${idx}`))
+          })
+
+          subInput.trigger("input")
+          break
+
+        case "show":
+          const show = {
+            selected: $(this).find(":selected")
+          }
+
+          $(`#${parentName} .${input.target}-${show.selected.val()}`).show()
+          $(this).find("option").not(show.selected).each(function() {
+            $(`#${parentName} .${input.target}-${$(this).val()}`).hide()
+          })
+          break
+
+        case "out":
+          if (!dgxState.outLock) {
+            let value = $(this).val()
+            if (input.cmpName == "midi" && input.ctrlName.search("device") > 0) {
+              value = data[input.ctrlName][value].label
+            }
+
+            dgxAPI.sendControlInput(
+              input.cmpName, input.cmpId, input.ctrlName, value)
+          }
+          break
+      }
+    })
+
+
+    const checkForData = input.ctrlName.split("-")
+    if (checkForData[0] == "data") {
+      input.ctrlName = checkForData.splice(1, checkForData.length).join("-")
+
+      $(this).on("flash", function () {
+        const flashData = dgxState.global[input.cmpName]
+        if (input.ctrlName in flashData) {
+          console.log(flashData[input.ctrlName].label)
+          switch ($(this).prop("tagName")) {
+            case "SELECT":
+              $(this).find("option").remove()
+
+              const sourceData = flashData[input.ctrlName]
+              sourceData.forEach((datum, idx) => {
+                $(this).append(new Option(datum.label, idx))
+              })
+              break
+            case "SPAN":
+              $(this).html(flashData[input.ctrlName].label)
+              break
+            default:
+              console.log(`WARNING: tagName ${$(this).prop("tagName")} not implemented`)
+              break
+        }
+
+        } else {
+          console.log(`WARNING: flash for control ${input.ctrlName} unimplemented`)
+        }
+      })
+      $(this).trigger("flash")
+
+
+
+
+
+
+
+
+
+      if (input.ctrlName in data) {
+        switch ($(this).prop("tagName")) {
+          case "SELECT":
+            $(this).find("option").remove()
+
+            const sourceData = data[input.ctrlName]
+            sourceData.forEach((datum, idx) => {
+              $(this).append(new Option(datum.label, idx))
+            })
+            break
+          case "SPAN":
+            $(this).html(data[input.ctrlName].label)
+            break
+          default:
+            console.log(`WARNING: data display not implemented for tagName ${$(this).prop("tagName")}`)
+            break
+        }
+      } else {
+        console.log(`WARNING: data display not implemented for ${input.ctrlName}`)
+      }
+    
+      if (["update", "show"].includes(input.onInput)) {
+        $(this).trigger("input")
+      }
+    }
+  })
+  dgxState.outLock = false
+} 
+
+$(document).ready(async function() {
+  await syncBank()
+  await touchUi()
+
+  $("#controller .header").click(function() {
+    dgxAPI.sendControlInput("ch", 0, "note_on", "50")
+  })
 })
 
+dgxAPI.flashControl(async function(_, name, id, control) {
+  console.log(`flasing control #${name}-${id}-${name} .data-${control}`)
+  dgxState.global = await dgxAPI.getAllGlobalOptions()
+  console.log(dgxState.global)
+  $(`#${name}-${id}-${name} .data-${control}`).trigger("flash")
+})
 /*
 const noteKeyMap = {
   90: 60,  83: 61,  88: 62,   68: 63,
@@ -262,8 +425,7 @@ async function ui_touchPart(part) {
 
   await ui_touchPart_VoiceSelector(part)
 
-  // connect control sliders to sending CC midi
-  $(`#part-${part} .part_control`).each(async function(_, ) {
+  // connect control sliders to sending CC midi $(`#part-${part} .part_control`).each(async function(_, ) {
     $(this).on("input", async function() {
       dgxAPI.sendControl(part, $(this).attr("name"), $(this).val())
     })

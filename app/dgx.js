@@ -2,26 +2,189 @@ const { app, BrowserWindow, ipcMain } = require("electron")
 const path = require("path")
 const fs = require("fs")
 const pug = require("pug")
+const JZZ = require("jzz")
+
+const midi = {
+  ready: false,
+  output: undefined,
+  output_error: undefined,
+
+  isConnectedToOutput: function () {
+    return this.output !== undefined
+  }
+}
+
+const bank = {
+  activeChannels: 2,
+  activeNotes: 2,
+
+  note: {
+    modeChord_MaxNotes: 6 
+  }
+}
+
+const control_links = {
+  midi: {
+    input_device:   { type: "midi-connect", port: "input" },
+    output_device:  { type: "midi-connect", port: "output" },
+  },
+  ch: {
+    note_on:        { type: "note", action: "on" },
+    note_off:       { type: "note", action: "off" },
+    volume:         { type: "cc", cc: 7 },
+    pan:            { type: "cc", cc: 10 },
+    expression:     { type: "cc", cc: 11 },
+    attack:         { type: "cc", cc: 73 },
+    release:        { type: "cc", cc: 72 },
+    harmonics:      { type: "cc", cc: 71 },
+    brightness:     { type: "cc", cc: 74 },
+    reverb:         { type: "cc", cc: 91 },
+    chorus:         { type: "cc", cc: 93 },
+    dsp:            { type: "cc", cc: 94 },
+
+    pgm_category: [
+      {
+        label: "E. Piano",
+        pgm_voice: [ 
+          { type: "pgm", msb: 0, lsb: 114, pgm: 4, label: "Galaxy EP" },
+          { type: "pgm", msb: 0, lsb: 112, pgm: 4, label: "Funky Electric Piano" },
+          { type: "pgm", msb: 0, lsb: 112, pgm: 5, label: "DX Modern Elec. Piano" },
+          { type: "pgm", msb: 0, lsb: 113, pgm: 5, label: "Hyper Tines" },
+          { type: "pgm", msb: 0, lsb: 114, pgm: 5, label: "Venus Electric Piano" },
+          { type: "pgm", msb: 0, lsb: 112, pgm: 7, label: "Clavi" }
+        ]
+      },
+      {
+        label: "Synth Pads",
+        pgm_voice: [
+          { type: "pgm", msb: 0, lsb: 0, pgm: 88, label: "New Age Pad" },
+          { type: "pgm", msb: 0, lsb: 64, pgm: 88, label: "Fantasy" },
+          { type: "pgm", msb: 0, lsb: 0, pgm: 89, label: "Warm Pad" }
+        ]
+      }
+    ]
+  },
+  note: {
+  },
+  dsp: {
+  },
+  bank: {
+  }
+}
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 1600,
+    height: 1200,
     webPreferences: {
       preload: path.join(__dirname, "preload.js")
     }
   })
 
-  ipcMain.handle("api:get-dgx-bank", async function () { return {
-    activeChannels: 4,
-    activeNotes: 4
-  }})
+  // API
+  ipcMain.handle("api:get-dgx-bank", async function () { return bank })
+  ipcMain.handle("api:get-global-options", async function (_, options) {
+    if (options === undefined) {
+      options = ["midi", "ch"]
+    }
 
-  const components = [
-    "channel",
-    "note"
-  ]
+    global = {}
 
+    options.forEach((option) => {
+      global[option] = {}
+
+      switch (option) {
+        case "midi":
+          global.midi.ready = midi.ready
+
+          if (midi.ready) {
+            ["input", "output"].forEach((put) => {
+              global.midi[`${put}_device`] = []
+              JZZ.info()[`${put}s`].forEach((device) => {
+                global.midi[`${put}_device`].push({ label: device.id })
+              })
+            })
+
+            if (midi.isConnectedToOutput()) {
+              global.midi["output_status"] = { label: `Connected to ${midi.output.name()}` }
+            } else if (midi.output_error !== undefined) {
+              global.midi["output_status"] = { label: `ERROR: ${midi.output_error} (Disconnected)` }
+            } else {
+              global.midi["output_status"] = { label: "Ready (Disconnected)" }
+            }
+          }
+          break
+
+        case "ch":
+          global[option].pgm_category = control_links.ch.pgm_category
+          break
+      }
+    })
+
+    return global
+  })
+
+  ipcMain.handle("api:send-control-input", async function(_, name, id, control, value) {
+    const ctrlDepths = control.split("-")
+    const valueDepths = value.split("-")
+
+    let link = control_links[name]
+    for (let d = 0; d < Math.min(ctrlDepths.length, valueDepths.length); d++) {
+      link = link[ctrlDepths[d]] 
+      if (Array.isArray(link)) {
+        link = link[valueDepths[d]]
+      }
+    }
+
+    if (link !== undefined && "type" in link) {
+      switch (link.type) {
+        case "pgm":
+          console.log(`sending program change [${link.msb},${link.lsb},${link.pgm}]`)
+          break
+
+        case "cc":
+          console.log(`sending ${value} to cc ${link.cc} on ch ${id}`)
+          break
+
+        case "note":
+          if (midi.isConnectedToOutput()) {
+            midi.output.ch(id).noteOn(value).wait(500).noteOff(value)
+          } else {
+            console.log(`WARNING: cannot play note, midi is not connected to output`)
+          }
+          break
+
+        case "midi-connect":
+          switch (link.port) {
+            case "input":
+              console.log(`WARNING: midi-connect input unimplemented`)
+              break
+            case "output":
+              if (midi.ready) {
+                if (midi.isConnectedToOutput()) {
+                  midi.output.close()
+                }
+
+                JZZ().openMidiOut(value).or(() => {
+                  midi.output_error = `Cannot connect to ${value}`
+                  midi.output = undefined
+                }).and(function () {
+                  midi.output_error = undefined
+                  midi.output = this
+                })
+              }
+
+              win.webContents.send("ui:flash-control", name, id, "output_status")
+              break
+          }
+          break
+      }
+    } else {
+      console.log(`WARNING: no link found (${name}, ${id}, ${control}, ${value})`)
+    }
+  })
+
+  // UI
   const mixins = [
     "control_inputs"
   ]
@@ -37,17 +200,16 @@ function createWindow () {
       + '\n'
   })
 
-  components.forEach((component) => {
-    ipcMain.handle(`ui:render-ui-${component}`, async function (_, cid) {
-      const fui = fs.readFileSync(
-        path.join(__dirname, "views", "components", `${component}.pug`), { 
-          encoding: "utf8" 
-        }
-      )
+  ipcMain.handle("ui:render-component", async function(_, component, id) {
+    const fui = fs.readFileSync(
+      path.join(__dirname, "views", "components", `${component}.pug`), { 
+        encoding: "utf8" 
+      }
+    )
 
-      return pug.compile(fmix + fui)({
-        cid: cid
-      })
+    return pug.compile(fmix + fui)({
+      cid: id,
+      bank: bank
     })
   })
 
@@ -56,6 +218,8 @@ function createWindow () {
 
 
 app.whenReady().then(() => {
+  JZZ().or(() => { midi.ready = false }).and(() => { midi.ready = true })
+
   createWindow()
 
   app.on("activate", () => {
@@ -63,6 +227,12 @@ app.whenReady().then(() => {
       createWindow()
     }
   })
+})
+
+app.on("before-quit", () => {
+  if (midi.isConnectedToOutput()) {
+    midi.output.close()
+  }
 })
 
 app.on("window-all-closed", () => {
