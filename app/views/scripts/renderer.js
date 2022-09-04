@@ -58,8 +58,6 @@ async function touchUi() {
           subInput.find("option").remove()
 
           const sUpVal = update.selected.val()
-          console.log(`input (${input.ctrlName} ${sUpVal} ${input.target}): `)
-          console.log(data)
           const targetData = data[input.ctrlName][sUpVal][input.target]
           targetData.forEach((datum, idx) => {
             subInput.append(new Option(datum.label, `${sUpVal}-${idx}`))
@@ -101,7 +99,6 @@ async function touchUi() {
       $(this).on("flash", function () {
         const flashData = dgxState.global[input.cmpName]
         if (input.ctrlName in flashData) {
-          console.log(flashData[input.ctrlName].label)
           switch ($(this).prop("tagName")) {
             case "SELECT":
               $(this).find("option").remove()
@@ -124,35 +121,6 @@ async function touchUi() {
         }
       })
       $(this).trigger("flash")
-
-
-
-
-
-
-
-
-
-      if (input.ctrlName in data) {
-        switch ($(this).prop("tagName")) {
-          case "SELECT":
-            $(this).find("option").remove()
-
-            const sourceData = data[input.ctrlName]
-            sourceData.forEach((datum, idx) => {
-              $(this).append(new Option(datum.label, idx))
-            })
-            break
-          case "SPAN":
-            $(this).html(data[input.ctrlName].label)
-            break
-          default:
-            console.log(`WARNING: data display not implemented for tagName ${$(this).prop("tagName")}`)
-            break
-        }
-      } else {
-        console.log(`WARNING: data display not implemented for ${input.ctrlName}`)
-      }
     
       if (["update", "show"].includes(input.onInput)) {
         $(this).trigger("input")
@@ -172,11 +140,10 @@ $(document).ready(async function() {
 })
 
 dgxAPI.flashControl(async function(_, name, id, control) {
-  console.log(`flasing control #${name}-${id}-${name} .data-${control}`)
   dgxState.global = await dgxAPI.getAllGlobalOptions()
-  console.log(dgxState.global)
   $(`#${name}-${id}-${name} .data-${control}`).trigger("flash")
 })
+
 /*
 const noteKeyMap = {
   90: 60,  83: 61,  88: 62,   68: 63,

@@ -139,11 +139,24 @@ function createWindow () {
     if (link !== undefined && "type" in link) {
       switch (link.type) {
         case "pgm":
-          console.log(`sending program change [${link.msb},${link.lsb},${link.pgm}]`)
+          if (midi.isConnectedToOutput()) {
+            midi.output.ch(id).control(32, link.lsb)
+            midi.output.ch(id).control(0, link.msb)
+            midi.output.ch(id).program(link.pgm)
+
+            console.log(`sending program change [${link.msb},${link.lsb},${link.pgm}]`)
+          } else {
+            console.log(`WARNING: cannot send program change, midi is not connected to output`)
+          }
           break
 
         case "cc":
-          console.log(`sending ${value} to cc ${link.cc} on ch ${id}`)
+          if (midi.isConnectedToOutput()) {
+            midi.output.ch(id).control(link.cc, value)
+            console.log(`sending ${value} to cc ${link.cc} on ch ${id}`)
+          } else {
+            console.log(`WARNING: cannot send CC, midi is not connected to output`)
+          }
           break
 
         case "note":
