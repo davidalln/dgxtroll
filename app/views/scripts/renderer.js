@@ -135,7 +135,7 @@ $(document).ready(async function() {
   await touchUi()
 
   $("#controller .header").click(function() {
-    dgxAPI.sendControlInput("ch", 0, "note_on", "50")
+    dgxAPI.sendControlInput("ch", 0, "note_test", "50")
   })
 })
 

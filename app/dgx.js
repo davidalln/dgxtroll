@@ -29,6 +29,7 @@ const control_links = {
     output_device:  { type: "midi-connect", port: "output" },
   },
   ch: {
+    note_test:      { type: "note", action: "test" },
     note_on:        { type: "note", action: "on" },
     note_off:       { type: "note", action: "off" },
     volume:         { type: "cc", cc: 7 },
@@ -126,7 +127,7 @@ function createWindow () {
 
   ipcMain.handle("api:send-control-input", async function(_, name, id, control, value) {
     const ctrlDepths = control.split("-")
-    const valueDepths = value.split("-")
+    const valueDepths = value.toString().split("-")
 
     let link = control_links[name]
     for (let d = 0; d < Math.min(ctrlDepths.length, valueDepths.length); d++) {
@@ -161,7 +162,20 @@ function createWindow () {
 
         case "note":
           if (midi.isConnectedToOutput()) {
-            midi.output.ch(id).noteOn(value).wait(500).noteOff(value)
+            switch (link.action) {
+              case "test":
+                midi.output.ch(id).noteOn(value).wait(500).noteOff(value)
+                console.log(`sending note test ${value} on ch ${id}`)
+                break
+              case "on":
+                midi.output.ch(id).noteOn(value)
+                console.log(`sending note on ${value} on ch ${id}`)
+                break
+              case "off":
+                midi.output.ch(id).noteOff(value)
+                console.log(`sending note off ${value} on ch ${id}`)
+                break
+            }
           } else {
             console.log(`WARNING: cannot play note, midi is not connected to output`)
           }

@@ -37,8 +37,102 @@ const keyboard = {
     219:  { type: "note", value: 89 },
   },
 
-  pressed: {}
+  pressed: {},
+  released: {}
 }
+
+$(document).ready(async function() {
+  const bpm = 120
+  const spb = 1.0 / ((1.0 / 60.0) * bpm)
+  const intv = (1000.0 / 128.0) * spb
+
+  const notes = {}
+  const noteOnQueue = []
+  const noteOffQueue = []
+
+  var start = window.performance.now()
+  setInterval(function() {
+    const keysPressed = Object.keys(keyboard.pressed)
+    const keysReleased = Object.keys(keyboard.released)
+
+    const getActivePorts = function() {
+      const ports = []
+
+      $(".component.note").each(function() {
+        if ($(this).find(".active").is(":checked")) {
+          const type = $(this).find(".send_to :selected").val()
+
+          $(this).find(".outports input").each(function() {
+            if ($(this).is(":checked")) {
+              ports.push({
+                ch: $(this).parent().find("label").text(),
+                type: type
+              })
+            }
+          })
+        }
+      })
+
+      return ports
+    }
+
+    if (Object.keys(keysPressed).length > 0) {
+      keysPressed.forEach((key) => {
+        keyboard.pressed[key].forEach((n) => {
+          if (!(n.note in notes)) {
+            notes[n.note] = {}
+          }
+
+          if (!(key in notes[n.note])) {
+            getActivePorts().forEach((port) => {
+              noteOnQueue.push({ note: n.note, ch: port.ch, vel: 127 })
+            })
+          }
+
+          notes[n.note][key] = true
+        })
+      })
+    }
+
+    if (Object.keys(keysReleased).length > 0) {
+      keysReleased.forEach((key) => {
+        if (key in keyboard.pressed) {
+          delete keyboard.pressed[key]
+        }
+
+        keyboard.released[key].forEach((n) => {
+          if (n.note in notes) {
+            delete notes[n.note][key]
+            if (!(Object.keys(notes[n.note]).length > 0)) {
+              getActivePorts().forEach((port) => {
+                noteOffQueue.push({ note: n.note, ch: port.ch })
+              })
+              delete notes[n.note]
+            }
+          }
+        })
+
+        delete keyboard.released[key]
+      })
+    }
+  }, 5)
+
+  setInterval(function() {
+    notesOn = Object.keys(noteOnQueue)
+    while (notesOn.length > 0) {
+      const note = notesOn.pop() 
+      dgxAPI.sendControlInput("ch", noteOnQueue[note].ch, "note_on", noteOnQueue[note].note)
+      delete noteOnQueue[note]
+    }
+
+    notesOff = Object.keys(noteOffQueue)
+    while (notesOff.length > 0) {
+      const note = notesOff.pop()
+      dgxAPI.sendControlInput("ch", noteOffQueue[note].ch, "note_off", noteOffQueue[note].note)
+      delete noteOffQueue[note]
+    }
+  }, 1)
+})
 
 $(document).keydown(async function(e) {
   const key = e.which
@@ -47,9 +141,7 @@ $(document).keydown(async function(e) {
       keyboard.pressed[key] = []
       switch (keyboard.armed[key].type) {
         case "note":
-          console.log("note down")
           keyboard.pressed[key].push({ note: keyboard.armed[key].value })
-          console.log(keyboard.pressed)
           break
       }
     }
@@ -61,8 +153,8 @@ $(document).keyup(async function(e) {
   if (key in keyboard.pressed) {
     switch (keyboard.armed[key].type) {
       case "note":
-        delete keyboard.pressed[key]
-        console.log(keyboard.pressed)
+        keyboard.released[key] = keyboard.pressed[key]
+
         break
     }
   }

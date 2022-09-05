@@ -5,8 +5,8 @@ div.component.note(id=`${nid}-note`)
 
   -
     var note_active_controls = [
-      { label: "Active", type: "checkbox", elid: "active" },
-      { label: "Send To", type: "select", elid: "send_to", options: [
+      { label: "Active", type: "checkbox", elid: "active", onInput: "none" },
+      { label: "Send To", type: "select", elid: "send_to", onInput: "none", options: [
         { label: "Channel", val: "channel" },
         { label: "Arp", val: "arp" }]},
     ]
@@ -21,13 +21,13 @@ div.component.note(id=`${nid}-note`)
     var note_channel_controls = []
     for (var i = 0; i < bank.activeChannels; i++) {
       note_channel_controls.push(
-        { label: i, type: "checkbox", elid: `send_to-${i}` }
+        { label: i, type: "checkbox", elid: `send_to-${i}`, onInput: "none" }
       )
     }
 
     var note_mode_oct_semi = [
-      { label: "Octave", type: "range", elid: "octave" },
-      { label: "Semitone", type: "range", elid: "semitone" }
+      { label: "Octave", type: "range", elid: "octave", onInput: "none" },
+      { label: "Semitone", type: "range", elid: "semitone", onInput: "none" }
     ]
 
   div.control2(id=`${nid}-mode-control`)
@@ -35,7 +35,7 @@ div.component.note(id=`${nid}-note`)
       div.control2
         +control_inputs(nid, note_active_controls)
     div.subcontrol
-      div.control8
+      div.control8.outports
         +control_inputs(nid, note_channel_controls)
     div.subcontrol
       div.control1
